@@ -2,6 +2,7 @@ package eu.tutorials.jetpackcomposemathquiz
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -9,10 +10,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -25,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -85,109 +89,69 @@ fun GameLogic() {
             modifier = Modifier
                 .padding(8.dp)
                 .rotate(rotation),
-            horizontalArrangement = Arrangement.Center,
+            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
+            Spacer(modifier = Modifier.weight(1f))
             Text(
                 text = question(operand, randomNumber),
                 fontWeight = FontWeight.ExtraBold,
                 fontSize = 56.sp
             )
+            Spacer(modifier = Modifier.weight(1f))
         }
     }
 
     @Composable
     fun DisplayLine(color: Color) {
         Divider(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
             color = color,
             thickness = 12.dp
         )
     }
-
-    Column(
-        modifier = Modifier
-            .padding(16.dp)
-            .fillMaxSize(),
-        verticalArrangement = Arrangement.Center
-    ) {
+    
+    @Composable
+    fun DisplayButtons(color: String, rotation: Float) {
         Row(
             modifier = Modifier
                 .padding(8.dp)
-                .rotate(180F)
+                .rotate(rotation)
                 .height(64.dp),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Button(
-                onClick = {
-                    if (options[0]!!.option == answer) {
-                        player2Score++
-                        rightAnswer = true
-                        scope.launch {
-                            delay(1500)
-                            rightAnswer = false
+            for (number in 0..2) {
+                Button(
+                    onClick = {
+                        if (options[number]!!.option == answer) {
+                            if (color == "blue") player2Score++ else player1Score++
+                        } else {
+                            if (color == "blue") player1Score++ else player2Score++
                         }
-
-                    } else {
-                        player1Score++
-                        wrongAnswer = true
-                        scope.launch {
-                            delay(1500)
-                            wrongAnswer = false
-                        }
-                    }
-                },
-                modifier = Modifier
-                    .padding(8.dp)
-                    .height(200.dp)
-                    .width(100.dp),
-                colors = if (rightAnswer) green else if (wrongAnswer) gray else lightBlue,
-                border = BorderStroke(4.dp, Color.Blue)
-            )
-            {
-                Text(text = "${options[0]!!.option}", color = Color.Blue, fontSize = 24.sp)
-            }
-            Spacer(modifier = Modifier.weight(1f))
-
-
-            Button(
-                onClick = {
-                    if (options[1]!!.option == answer) {
-                        player2Score++
-                    } else {
-                        player1Score++
-                    }
-                },
-                modifier = Modifier
-                    .padding(8.dp)
-                    .height(200.dp)
-                    .width(100.dp),
-                colors = lightBlue,
-                border = BorderStroke(4.dp, Color.Blue)
-            ) {
-                Text(text = "${options[1]!!.option}", color = Color.Blue, fontSize = 24.sp)
-            }
-            Spacer(modifier = Modifier.weight(1f))
-
-            Button(
-                onClick = {
-                    if (options[2]!!.option == answer) {
-                        player2Score++
-                    } else {
-                        player1Score++
-                    }
-                },
-                modifier = Modifier
-                    .padding(8.dp)
-                    .height(200.dp)
-                    .width(100.dp),
-                colors = lightBlue,
-                border = BorderStroke(4.dp, Color.Blue)
-            ) {
-                Text(text = "${options[2]!!.option}", color = Color.Blue, fontSize = 24.sp)
+                    },
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .height(200.dp)
+                        .width(115.dp),
+                    colors = lightBlue,
+                    border = BorderStroke(4.dp, Color.Blue)
+                ) {
+                    Text(text = "${options[number]!!.option}", color = Color.Blue, fontSize = 24.sp)
+                }
             }
         }
+
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(vertical = 16.dp),
+        verticalArrangement = Arrangement.Center
+    ) {
+            
+        DisplayButtons(color = "blue", rotation = 180F)
 
         DisplayLine(color = Color.Blue)
 
@@ -200,70 +164,28 @@ fun GameLogic() {
             modifier = Modifier
                 .rotate(-90F)
                 .padding(8.dp),
-            horizontalArrangement = Arrangement.Start
+            horizontalArrangement = Arrangement.Center
         ) {
             Text(text = "$player1Score", color = Color.Red, fontSize = 24.sp)
-            Spacer(modifier = Modifier.width(20.dp))
+            Spacer(modifier = Modifier.width(10.dp))
+            Icon(
+                painter = painterResource(id = R.drawable.baseline_circle_24),
+                contentDescription = null,
+                modifier = Modifier.size(4.dp).align(Alignment.CenterVertically)
+            )
+            Spacer(modifier = Modifier.width(10.dp))
             Text(text = "$player2Score", color = Color.Blue, fontSize = 24.sp)
         }
+
 
         Spacer(modifier = Modifier.height(75.dp))
 
         DisplayQuestion(rotation = 0F)
 
         DisplayLine(color = Color.Red)
+            
+        DisplayButtons(color = "red", rotation = 0F)
 
-        Row(
-            modifier = Modifier
-                .padding(8.dp)
-                .height(64.dp),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Button(
-                onClick = {
-                    if (options[0]!!.option == answer) player1Score++ else player2Score++
-                },
-                modifier = Modifier
-                    .padding(8.dp)
-                    .height(200.dp)
-                    .width(100.dp),
-                colors = lightRed,
-                border = BorderStroke(4.dp, Color.Red)
-            ) {
-                Text(text = "${options[0]!!.option}", color = Color.Red, fontSize = 24.sp)
-            }
-            Spacer(modifier = Modifier.weight(1f))
-
-            Button(
-                onClick = {
-                    if (options[1]!!.option == answer) player1Score++ else player2Score++
-                },
-                modifier = Modifier
-                    .padding(8.dp)
-                    .height(200.dp)
-                    .width(100.dp),
-                colors = lightRed,
-                border = BorderStroke(4.dp, Color.Red)
-            ) {
-                Text(text = "${options[1]!!.option}", color = Color.Red, fontSize = 24.sp)
-            }
-            Spacer(modifier = Modifier.weight(1f))
-
-            Button(
-                onClick = {
-                    if (options[2]!!.option == answer) player1Score++ else player2Score++
-                },
-                modifier = Modifier
-                    .padding(8.dp)
-                    .height(200.dp)
-                    .width(100.dp),
-                colors = lightRed,
-                border = BorderStroke(4.dp, Color.Red)
-            ) {
-                Text(text = "${options[2]!!.option}", color = Color.Red, fontSize = 24.sp)
-            }
-        }
 
 //            try {
 //                Thread.sleep(1500)
@@ -277,3 +199,33 @@ fun GameLogic() {
 //            wrongAnswer = false
     }
 }
+
+//            Button(
+//                onClick = {
+//                    if (options[0]!!.option == answer) {
+//                        player2Score++
+//                        rightAnswer = true
+//                        scope.launch {
+//                            delay(1500)
+//                            rightAnswer = false
+//                        }
+//
+//                    } else {
+//                        player1Score++
+//                        wrongAnswer = true
+//                        scope.launch {
+//                            delay(1500)
+//                            wrongAnswer = false
+//                        }
+//                    }
+//                },
+//                modifier = Modifier
+//                    .padding(8.dp)
+//                    .height(200.dp)
+//                    .width(100.dp),
+//                colors = if (rightAnswer) green else if (wrongAnswer) gray else lightBlue,
+//                border = BorderStroke(4.dp, Color.Blue)
+//            )
+//            {
+//                Text(text = "${options[0]!!.option}", color = Color.Blue, fontSize = 24.sp)
+//            }
